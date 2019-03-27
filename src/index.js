@@ -1,6 +1,5 @@
 /**
  * Eureka nodejs client
- *
  * 使用Eureka Rest 实现nodejs 版客户端
  */
 
