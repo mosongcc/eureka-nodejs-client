@@ -12,7 +12,9 @@
     "axios": "^0.18.0",
     "cron": "^1.7.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "express": "^4.16.4"
+  },
   "directories": {
     "test": "test"
   },
@@ -23,7 +25,6 @@
   "keywords": [
     "eureka",
     "nodejs",
-    "client",
     "eureka-node",
     "eureka-nodejs",
     "eureka-client",
