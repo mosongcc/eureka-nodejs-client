@@ -81,7 +81,6 @@ function EurekaClient(ops = {}) {
         if (ops.eureka && ops.eureka[k]) {
             this.config.eureka[k] = ops.eureka[k]
         }
-        console.log(k,'=',this.config.eureka[k] )
     }
     for (let k in this.config.instance) {
         if (ops.instance && ops.instance[k]) {
@@ -133,7 +132,6 @@ EurekaClient.prototype.register = function(){
     })
 }
 
-
 /**
  * 查询所有实例
  * @param ops
@@ -145,7 +143,6 @@ EurekaClient.prototype.queryAll = function(){
         return EurekaClient.prototype.apps
     })
 }
-
 
 /**
  * 查询应用的所有实例
@@ -188,17 +185,22 @@ EurekaClient.prototype.delete = function () {
 const Cron = require('cron')
 const CronJob = Cron.CronJob
 
-EurekaClient.prototype.start = function(){
-    console.log(this.eureka)
-    let pollIntervalSeconds = this.eureka.pollIntervalSeconds
-    let heartbeat = this.heartbeat
+EurekaClient.prototype.start = async function(){
+    let pollIntervalSeconds = this.config.eureka.pollIntervalSeconds
     this.cron = new CronJob(`*/${pollIntervalSeconds} * * * * *`, async function () {
         console.log(`# second${new Date().getTime()}`)
-        let heart = await heartbeat()
-        if(heart){
-            console.log('>> heartbeat success ', heart)
-        }else{
-            console.log('>> heartbeat fail ', heart)
+        let eureka = new EurekaClient(EurekaClient.prototype.ops)
+        try {
+            let rs = await eureka.heartbeat()
+            console.log('>> heartbeat success ', rs)
+        }catch (e) {
+            console.error(e.message)
+            try {
+                await eureka.register()
+            }catch (e1) {
+                console.error(e1.message)
+            }
+
         }
     }, null, true, 'Asia/Shanghai')
 }
@@ -207,7 +209,7 @@ EurekaClient.prototype.stop = function(){
     this.cron.stop()
 }
 
-
 module.exports = (ops) => {
+    EurekaClient.prototype.ops = ops
     return new EurekaClient(ops)
 }
