@@ -1,0 +1,100 @@
+{
+  "applications": {
+    "versions__delta": "1",
+    "apps__hashcode": "UP_2_",
+    "application": [
+      {
+        "name": "EUREKA",
+        "instance": [
+          {
+            "instanceId": "10.21.0.31:8761",
+            "hostName": "27f7f965cc2b",
+            "app": "EUREKA",
+            "ipAddr": "10.21.0.31",
+            "status": "UP",
+            "overriddenStatus": "UNKNOWN",
+            "port": {
+              "$": 8761,
+              "@enabled": "true"
+            },
+            "securePort": {
+              "$": 443,
+              "@enabled": "false"
+            },
+            "countryId": 1,
+            "dataCenterInfo": {
+              "@class": "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
+              "name": "MyOwn"
+            },
+            "leaseInfo": {
+              "renewalIntervalInSecs": 10,
+              "durationInSecs": 30,
+              "registrationTimestamp": 1553602313584,
+              "lastRenewalTimestamp": 1553613781266,
+              "evictionTimestamp": 0,
+              "serviceUpTimestamp": 1553602293421
+            },
+            "metadata": {
+              "management.port": "8761"
+            },
+            "homePageUrl": "http://27f7f965cc2b:8761/",
+            "statusPageUrl": "http://27f7f965cc2b:8761/actuator/info",
+            "healthCheckUrl": "http://27f7f965cc2b:8761/actuator/health",
+            "vipAddress": "eureka",
+            "secureVipAddress": "eureka",
+            "isCoordinatingDiscoveryServer": "true",
+            "lastUpdatedTimestamp": "1553602313584",
+            "lastDirtyTimestamp": "1553602292683",
+            "actionType": "ADDED"
+          }
+        ]
+      },
+      {
+        "name": "ORGACC",
+        "instance": [
+          {
+            "instanceId": "10.160.1.245:39805",
+            "hostName": "10.160.1.245",
+            "app": "ORGACC",
+            "ipAddr": "10.160.1.245",
+            "status": "UP",
+            "overriddenStatus": "UNKNOWN",
+            "port": {
+              "$": 39805,
+              "@enabled": "true"
+            },
+            "securePort": {
+              "$": 443,
+              "@enabled": "false"
+            },
+            "countryId": 1,
+            "dataCenterInfo": {
+              "@class": "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
+              "name": "MyOwn"
+            },
+            "leaseInfo": {
+              "renewalIntervalInSecs": 10,
+              "durationInSecs": 30,
+              "registrationTimestamp": 1553613755681,
+              "lastRenewalTimestamp": 1553613755681,
+              "evictionTimestamp": 0,
+              "serviceUpTimestamp": 1553613755157
+            },
+            "metadata": {
+              "management.port": "39805"
+            },
+            "homePageUrl": "http://10.160.1.245:39805/",
+            "statusPageUrl": "http://10.160.1.245:39805/actuator/info",
+            "healthCheckUrl": "http://10.160.1.245:39805/actuator/health",
+            "vipAddress": "orgacc",
+            "secureVipAddress": "orgacc",
+            "isCoordinatingDiscoveryServer": "false",
+            "lastUpdatedTimestamp": "1553613755682",
+            "lastDirtyTimestamp": "1553612399024",
+            "actionType": "ADDED"
+          }
+        ]
+      }
+    ]
+  }
+}
