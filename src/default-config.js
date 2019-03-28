@@ -2,7 +2,7 @@ module.exports = {
     eureka: {
         serviceUrl: ['http://127.0.0.1:8761'],
         servicePath: '/eureka/apps',
-        pollIntervalSeconds: 30
+        pollIntervalSeconds: 30,  //轮询间隔秒数
     },
     instance: {
         instanceId: '',

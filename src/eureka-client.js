@@ -1,10 +1,10 @@
-
-
 let axios = require('axios')
-
 let defaultConfig = require('./default-config')
 
-function EurekaClient(ops = {}) {
+function EurekaClient() {
+}
+
+EurekaClient.prototype.init = function (ops) {
     if (!(ops && ops.instance)) {
         throw new TypeError('Error：*** Instance configuration does not exist')
     }
@@ -27,16 +27,10 @@ function EurekaClient(ops = {}) {
 
     //应用配置ops覆盖默认配置
     this.config = defaultConfig
-    for (let k in this.config.eureka) {
-        if (ops.eureka && ops.eureka[k]) {
-            this.config.eureka[k] = ops.eureka[k]
-        }
-    }
-    for (let k in this.config.instance) {
-        if (ops.instance && ops.instance[k]) {
-            this.config.instance[k] = ops.instance[k]
-        }
-    }
+    this.config.eureka = Object.assign(this.config.eureka, ops.eureka)
+    this.config.instance = Object.assign(this.config.instance, instance)
+
+    this.logger.info(`Eureka Config : ${JSON.stringify(this.config)}`)
 
     let eureka = this.config.eureka
     this.request = []
@@ -47,17 +41,15 @@ function EurekaClient(ops = {}) {
             headers: {'Accept': 'application/json'}
         }))
     }
-
 }
 
-EurekaClient.prototype.call = function (cb) {
-    for (let req of this.request) {
-        try {
-            return cb(req)
-        } catch (e) {
-            console.error(e.message)
-        }
-    }
+/**
+ * 配置多个Eureka 服务时，随机获取服务地址
+ * @returns {*}
+ */
+EurekaClient.prototype.axios = function () {
+    let rn = Math.floor(Math.random() * this.request.length + 1) - 1
+    return this.request[rn]
 }
 
 /**
@@ -65,99 +57,83 @@ EurekaClient.prototype.call = function (cb) {
  * @param ops
  * @return 响应数据格式参考queryAll.res.json
  */
-EurekaClient.prototype.register = function () {
-    console.log(this.config.instance)
-    return this.call((req) => {
-        return req.post(`/${this.config.instance.app}`, {instance: this.config.instance}, {
-            validateStatus: function (status) {
-                console.log('validateStatus:', status)
-                return 204 == status
-            }
-        }).then((rs) => {
-            console.log('register success ...', rs.data)
-            return true
-        }).catch((err) => {
-            console.log(err)
-            console.log('register success faile', err.data)
-            return false
-        })
+EurekaClient.prototype.register = async function () {
+    let app = this.config.instance.app
+    let instance = this.config.instance
+    let rs = await this.axios().post(`/${app}`, {instance: instance}, {
+        validateStatus: function (status) {
+            return 204 == status
+        }
+    }).then((rs) => {
+        this.logger.info(`Eureka register success  resStatus=${rs.status} app=${app} instance=${JSON.stringify(instance)} `)
+        return true
+    }).catch((err) => {
+        this.logger.error(`Eureka register error ${err.data} `)
+        return false
     })
+    if(rs){
+        //注册状态改为false
+        this.regStatus = true
+    }
+    return rs
 }
 
 /**
  * 查询所有实例
  * @param ops
  */
-EurekaClient.prototype.queryAll = function () {
-    return this.call(async (req) => {
-        let response = await req.get('')
-        EurekaClient.prototype.apps = response.data
-        return EurekaClient.prototype.apps
-    })
+EurekaClient.prototype.queryAll = async function () {
+    let response = await this.axios().get('')
+    this.logger.debug(`Eureka query all instance ${JSON.stringify(response.data)}`)
+    return response.data
 }
 
 /**
  * 查询应用的所有实例
  * @param ops
  */
-EurekaClient.prototype.queryByappid = function (app) {
-    return this.call(async (req) => {
-        let response = await req.get(`/${app}`)
-        return response.data
-    })
+EurekaClient.prototype.queryByappid = async function (app) {
+    let response = await this.axios().get(`/${app}`)
+    this.logger.debug(`Eureka query app instance ${JSON.stringify(response.data)}`)
+    return response.data
 }
 
 /**
  * 发送实例健康检查
  * @param ops
  */
-EurekaClient.prototype.heartbeat = function () {
+EurekaClient.prototype.heartbeat = async function () {
     let app = this.config.instance.app
     let instanceId = this.config.instance.instanceId
-    return this.call(async (req) => {
-        let response = await req.put(`/${app}/${instanceId}`, {status: 'UP', lastDirtyTimestamp: new Date().getTime()})
-        return response.status == 200
-    })
+    let status = 0
+    try {
+        let response = await this.axios().put(`/${app}/${instanceId}`, {
+            status: 'UP',
+            lastDirtyTimestamp: new Date().getTime()
+        })
+        this.logger.debug(`Eureka app=${app}  ${instanceId} heartbeat ...ok `)
+        status = response.status
+    } catch (e) {
+        this.logger.debug(`Eureka app=${app}  ${instanceId} heartbeat ...fail  ${e.message}`)
+        //注册状态改为false
+        eureka.regStatus = false
+    }
+    return status == 200
 }
 
 /**
  * 删除实例
  * @param ops
  */
-EurekaClient.prototype.delete = function () {
+EurekaClient.prototype.delete = async function () {
     let app = this.config.instance.app
     let instanceId = this.config.instance.instanceId
-    return this.call(async req => {
-        let response = await req.delete(`/${app}/${instanceId}`)
-        return response.status
-    })
+    let response = await this.axios().delete(`/${app}/${instanceId}`)
+    this.logger.debug(`Eureka ${app}  ${instanceId} delete ...ok `)
+    return response.status == 200
 }
 
-const Cron = require('cron')
-const CronJob = Cron.CronJob
+let eureka = new EurekaClient()
 
-EurekaClient.prototype.start = async function () {
-    let pollIntervalSeconds = this.config.eureka.pollIntervalSeconds
-    this.cron = new CronJob(`*/${pollIntervalSeconds} * * * * *`, async function () {
-        console.log(`# second${new Date().getTime()}`)
-        let eureka = new EurekaClient(EurekaClient.prototype.ops)
-        try {
-            let rs = await eureka.heartbeat()
-            console.log('>> heartbeat success ', rs)
-        } catch (e) {
-            console.error(e.message)
-            try {
-                await eureka.register()
-            } catch (e1) {
-                console.error(e1.message)
-            }
 
-        }
-    }, null, true, 'Asia/Shanghai')
-}
-
-EurekaClient.prototype.stop = function () {
-    this.cron.stop()
-}
-
-module.exports = EurekaClient
+module.exports = eureka
