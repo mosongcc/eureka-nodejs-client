@@ -40,6 +40,11 @@ module.exports = function (config, logLevel='info') {
         delete(){
             return eureka.delete()
         },
+        /**
+         * 随机获取服务实例
+         * @param name
+         * @returns {Promise<{idAddr: (string), port: *}>}
+         */
         async instance(name){
             let pollIntervalSeconds = eureka.config.eureka.pollIntervalSeconds
             let fnt = `fetch-${name}-time`
@@ -55,6 +60,12 @@ module.exports = function (config, logLevel='info') {
             let rn = Math.floor(Math.random() * instance.length + 1) - 1
             let ai = instance[rn]
             return {idAddr: ai.ipAddr, port: ai.port['$']}
+        },
+        /**
+         * Express服务健康检查路由
+         */
+        eurekaExpressRouter(){
+            return require('./exprss.eureka.router')
         }
     }
 }
