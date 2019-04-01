@@ -105,16 +105,18 @@ EurekaClient.prototype.queryByappid = async function (app) {
 EurekaClient.prototype.heartbeat = async function () {
     let app = this.config.instance.app
     let instanceId = this.config.instance.instanceId
+    let path = `/${app}/${instanceId}`
     let status = 0
     try {
-        let response = await this.axios().put(`/${app}/${instanceId}`, {
+        let response = await this.axios().put(path, {
             status: 'UP',
             lastDirtyTimestamp: new Date().getTime()
         })
         this.logger.debug(`Eureka app=${app}  ${instanceId} heartbeat ...ok `)
         status = response.status
     } catch (e) {
-        this.logger.debug(`Eureka app=${app}  ${instanceId} heartbeat ...fail  ${e.message}`)
+        console.log(e)
+        this.logger.error(`Eureka app=${app}  ${instanceId} heartbeat ...fail put uri=${JSON.stringify(this.config.eureka)} path=${path}  ${e.message}`)
         //注册状态改为false
         eureka.regStatus = false
     }
