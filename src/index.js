@@ -59,7 +59,9 @@ module.exports = function (config, logLevel='info') {
             let instance = eureka.apps.application.instance
             let rn = Math.floor(Math.random() * instance.length + 1) - 1
             let ai = instance[rn]
-            return {idAddr: ai.ipAddr, port: ai.port['$']}
+            //ip = ipAddr
+            // port = ai.port['$']
+            return ai
         },
         /**
          * Express服务健康检查路由

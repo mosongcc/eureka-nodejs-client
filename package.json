@@ -1,6 +1,6 @@
 {
   "name": "eureka-nodejs-client",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Eureka nodejs client",
   "main": "./src/index.js",
   "scripts": {
