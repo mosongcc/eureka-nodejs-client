@@ -1,12 +1,10 @@
 # eureka-nodejs-client
 
-Eureka nodejs client  
-
 Eureka server version 1.9.8 
 
 Example demo:
 
-> npm install https://github.com/zingsono/eureka-nodejs-client.git  --save 
+> npm install eureka-nodejs-client  --save 
 
 ```js
 
@@ -34,6 +32,8 @@ eureka.instance('test-instance').then(rs=>{
     console.log(rs)   // { idAddr: '10.21.0.31', port: 8761 }    
 })
 
-//类似spring cloud Feign调用方式参考另外一个项目`eureka-express-client`，是一个express插件。
+//健康检查express路由
+app.use(eureka.eurekaExpressRouter())
+
 
 ```
