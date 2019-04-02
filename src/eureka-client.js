@@ -37,8 +37,9 @@ EurekaClient.prototype.init = function (ops) {
     for (let i in eureka.serviceUrl) {
         this.request.push(axios.create({
             baseURL: `${eureka.serviceUrl[i]}${eureka.servicePath}`,
-            timeout: 3000,
-            headers: {'Accept': 'application/json'}
+            timeout: eureka.timeout,
+            headers: {'Accept': 'application/json'},
+            proxy:eureka.proxy
         }))
     }
 }
