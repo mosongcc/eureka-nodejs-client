@@ -7,7 +7,7 @@ let eureka = require('../src/index')({
     instance:{
         app: 'test-instance',
         ipAddr: '10.21.0.31',
-        port: 8761
+        port: 8080
     }
 }, 'info')
 
