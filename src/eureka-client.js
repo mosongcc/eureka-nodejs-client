@@ -31,17 +31,6 @@ EurekaClient.prototype.init = function (ops) {
     this.config.instance = Object.assign(this.config.instance, instance)
 
     this.logger.info(`Eureka Config : ${JSON.stringify(this.config)}`)
-
-    let eureka = this.config.eureka
-    this.request = []
-    for (let i in eureka.serviceUrl) {
-        this.request.push(axios.create({
-            baseURL: `${eureka.serviceUrl[i]}${eureka.servicePath}`,
-            timeout: eureka.timeout,
-            headers: {'Accept': 'application/json'},
-            proxy:eureka.proxy
-        }))
-    }
 }
 
 /**
@@ -49,8 +38,14 @@ EurekaClient.prototype.init = function (ops) {
  * @returns {*}
  */
 EurekaClient.prototype.axios = function () {
-    let rn = Math.floor(Math.random() * this.request.length + 1) - 1
-    return this.request[rn]
+    let serviceUrls = this.config.eureka.serviceUrl
+    let i = Math.floor(Math.random() * serviceUrls.length + 1) - 1
+    return axios.create({
+        baseURL: `${serviceUrls[i]}${this.config.eureka.servicePath}`,
+        timeout: this.config.eureka.timeout,
+        headers: {'Accept': 'application/json'},
+        proxy:this.config.eureka.proxy
+    })
 }
 
 /**
@@ -69,11 +64,12 @@ EurekaClient.prototype.register = async function () {
         this.logger.info(`Eureka register success  resStatus=${rs.status} app=${app} instance=${JSON.stringify(instance)} `)
         return true
     }).catch((err) => {
+        console.log(err)
         this.logger.error(`Eureka register error ${err.data} `)
         return false
     })
     if(rs){
-        //注册状态改为false
+        //注册状态改为true
         this.regStatus = true
     }
     return rs
