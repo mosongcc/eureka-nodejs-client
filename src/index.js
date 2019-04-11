@@ -16,6 +16,8 @@ module.exports = function (config, logLevel='info') {
          * 启动服务
          */
         start(){
+            //等于false，不启动注册服务
+            if(!eureka.config.eureka.registerWithEureka){ return false }
             let pollIntervalSeconds = eureka.config.eureka.pollIntervalSeconds
             eureka.cron = new CronJob(`*/${pollIntervalSeconds} * * * * *`, async function () {
                 if(eureka.regStatus){
