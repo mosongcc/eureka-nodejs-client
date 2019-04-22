@@ -11,7 +11,8 @@ Example demo:
 let eureka = require('eureka-nodejs-client')({
     eureka: {
         serviceUrl: ['http://10.160.1.11:8761'],
-        pollIntervalSeconds: 10
+        pollIntervalSeconds: 10,
+        registerWithEureka: false,   //是否注册当前注册
     },
     //最简单实例配置，更多配置参考默认配置文件 
     instance:{
@@ -33,7 +34,11 @@ eureka.instance('test-instance').then(rs=>{
 })
 
 //健康检查express路由
-app.use(eureka.eurekaExpressRouter())
+eureka.eurekaExpressRouter()
+
+
+//健康检查express路由
+eureka.eurekaKoaRouter()
 
 
 ```

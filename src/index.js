@@ -69,7 +69,13 @@ module.exports = function (config, logLevel='info') {
          * Express服务健康检查路由
          */
         eurekaExpressRouter(){
-            return require('./exprss.eureka.router')
+            return require('./eureka.router.exprss')
+        },
+        /**
+         * KOA 服务健康检查路由
+         */
+        eurekaKoaRouter(){
+            return require('./eureka.router.koa')
         }
     }
 }
